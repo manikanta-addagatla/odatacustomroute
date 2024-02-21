@@ -1,25 +1,44 @@
-var builder = WebApplication.CreateBuilder(args);
+//-----------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation.  All rights reserved.
+//-----------------------------------------------------------------------------
 
-// Add services to the container.
+using Serilog;
+using System;
+using System.IO;
+using System.Threading;
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+namespace Microsoft.Playwright.Services.Authorization
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            // The initial "bootstrap" logger is able to log errors during start-up. It's completely replaced by the
+            // logger configured in `UseSerilog()` below, once configuration and dependency-injection have both been
+            // set up successfully.
+
+            Console.WriteLine("Starting up Authorization Service");
+            CreateHostBuilder(args).Build().Run();
+        }
+
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                 .ConfigureAppConfiguration((context, config) =>
+                 {
+
+                     var environment = context.HostingEnvironment.EnvironmentName.ToLower();
+
+                     var builtConfig = config
+                         .SetBasePath(Directory.GetCurrentDirectory())
+                         .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                         .AddJsonFile($"appsettings.{environment}.json", optional: false, reloadOnChange: true)
+                         .AddEnvironmentVariables()
+                         .Build();
+
+                 })
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>();
+                });
+    }
 }
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
