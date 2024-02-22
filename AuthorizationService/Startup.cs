@@ -37,7 +37,8 @@ namespace Microsoft.Playwright.Services.Authorization
             services.AddRouting(options => options.LowercaseUrls = true);
             services.AddControllers()
                 .AddNewtonsoftJson(options => options.SerializerSettings.Converters.Add(new StringEnumConverter()))
-                .AddOData(options => options.EnableQueryFeatures().AddRouteComponents("accounts/{accountId}/access-tokens", getEdmModel()));
+               // .AddOData(options => options.EnableQueryFeatures().AddRouteComponents("accounts/{accountId}/access-tokens", EdmModelProvider.GetEdmModel()));
+                .AddOData(options => options.EnableQueryFeatures().AddRouteComponents("accounts/{accountId}", EdmModelProvider.GetEdmModel()));
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc(AuthorizationServiceConstants.APIVersion1_0,
@@ -90,14 +91,6 @@ namespace Microsoft.Playwright.Services.Authorization
                 }
                 endpoints.MapControllers();
             });   
-        }
-
-        
-        private IEdmModel getEdmModel()
-        {
-            var builder = new ODataConventionModelBuilder();
-            builder.EntitySet<AccessTokenResponse>("AccessToken");
-            return builder.GetEdmModel();
         }
     }
 }
