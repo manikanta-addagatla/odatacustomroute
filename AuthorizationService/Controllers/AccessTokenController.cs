@@ -47,7 +47,7 @@ namespace Microsoft.Playwright.Services.Authorization.Controllers
                 CreatedAt = DateTime.Now,
                 ExpiryAt = DateTime.Now.AddHours(1),
                 Id = "1",
-                JwtToken = "xyz",
+                JwtToken = "abc",
                 Name = "test"
             });
             accesstokens.Add(new AccessTokenResponse
@@ -55,7 +55,7 @@ namespace Microsoft.Playwright.Services.Authorization.Controllers
                 CreatedAt = DateTime.Now,
                 ExpiryAt = DateTime.Now.AddHours(1),
                 Id = "2",
-                JwtToken = "klm",
+                JwtToken = "def",
                 Name = "test2"
             });
             accesstokens.Add(new AccessTokenResponse
@@ -63,8 +63,24 @@ namespace Microsoft.Playwright.Services.Authorization.Controllers
                 CreatedAt = DateTime.Now,
                 ExpiryAt = DateTime.Now.AddHours(1),
                 Id = "3",
-                JwtToken = "efg",
+                JwtToken = "ghi",
                 Name = "test3"
+            });
+            accesstokens.Add(new AccessTokenResponse
+            {
+                CreatedAt = DateTime.Now,
+                ExpiryAt = DateTime.Now.AddHours(1),
+                Id = "4",
+                JwtToken = "jkl",
+                Name = "test4"
+            });
+            accesstokens.Add(new AccessTokenResponse
+            {
+                CreatedAt = DateTime.Now,
+                ExpiryAt = DateTime.Now.AddHours(1),
+                Id = "5",
+                JwtToken = "mno",
+                Name = "test5"
             });
         }
 
@@ -102,7 +118,7 @@ namespace Microsoft.Playwright.Services.Authorization.Controllers
         /// <summary>
         /// Get all AccessToken for given accountId
         /// </summary>
-        [EnableQuery(PageSize = 1)]
+        [EnableQuery(PageSize = 2)]
         [CustomODataRouting]
         [HttpGet("accounts/{accountId}/access-tokens")]
         [SwaggerOperation(OperationId = AuthorizationServiceConstants.GetAllAccessTokenOperationId, Summary = AuthorizationServiceConstants.GetAllAccessTokensSwaggerSummary)]
