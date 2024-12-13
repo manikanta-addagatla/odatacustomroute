@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Attributes;
 using Microsoft.Playwright.Services.Authorization.Common;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Playwright.Services.Authorization.Models;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
@@ -21,11 +22,11 @@ namespace Microsoft.Playwright.Services.Authorization.Controllers
     /// <summary>
     /// Access Token Controller
     /// </summary>
-    [ODataAttributeRouting]
+    //[ODataAttributeRouting]
     [Route("/")]
     public class AccessTokenController : ControllerBase
     {
-    //    private readonly ILogger _logger;
+        private readonly ILogger _logger;
         private List<AccessTokenResponse> accesstokens;
 
         /// <summary>
@@ -37,10 +38,34 @@ namespace Microsoft.Playwright.Services.Authorization.Controllers
         /// <param name="accessTokenMetadataDbService"></param>
         /// <param name="tokenHandlerService"></param>
         /// <param name="openTelemetryAuditLogger"></param>
-        public AccessTokenController(/*ILogger logger*/)
+        public AccessTokenController(ILogger logger)
         {
-     //       _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             accesstokens = new List<AccessTokenResponse>();
+            accesstokens.Add(new AccessTokenResponse
+            {
+                CreatedAt = DateTime.Now,
+                ExpiryAt = DateTime.Now.AddHours(1),
+                Id = "1",
+                JwtToken = "xyz",
+                Name = "test"
+            });
+            accesstokens.Add(new AccessTokenResponse
+            {
+                CreatedAt = DateTime.Now,
+                ExpiryAt = DateTime.Now.AddHours(1),
+                Id = "2",
+                JwtToken = "klm",
+                Name = "test2"
+            });
+            accesstokens.Add(new AccessTokenResponse
+            {
+                CreatedAt = DateTime.Now,
+                ExpiryAt = DateTime.Now.AddHours(1),
+                Id = "3",
+                JwtToken = "efg",
+                Name = "test3"
+            });
         }
 
         #region Actions
@@ -48,9 +73,7 @@ namespace Microsoft.Playwright.Services.Authorization.Controllers
         /// <summary>
         /// Create AccessToken for given accountId
         /// </summary>
-        [EnableQuery]
         [HttpPut("accounts/{accountId}/access-tokens/{accessTokenId}")]
-        [CustomODataRouting]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(AccessTokenResponse))]
         [SwaggerOperation(OperationId = AuthorizationServiceConstants.PutAccessTokenOperationId, Summary = AuthorizationServiceConstants.CreateAccessTokenSwaggerSummary)]
         public async Task<ActionResult> CreateAccessTokenAsync([FromRoute] string accountId, [FromRoute] string accessTokenId, [FromBody] AccessTokenRequest accessTokenRequest)
@@ -64,8 +87,6 @@ namespace Microsoft.Playwright.Services.Authorization.Controllers
         /// <summary>
         /// Get AccessToken for given acccessKeyId
         /// </summary>
-        [EnableQuery]
-        [CustomODataRouting]
         [HttpGet("accounts/{accountId}/access-tokens/{accessTokenId}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AccessTokenResponse))]
         [SwaggerOperation(OperationId = AuthorizationServiceConstants.GetAccessTokenOperationId, Summary = AuthorizationServiceConstants.GetAccessTokenSwaggerSummary)]
@@ -81,19 +102,19 @@ namespace Microsoft.Playwright.Services.Authorization.Controllers
         /// <summary>
         /// Get all AccessToken for given accountId
         /// </summary>
-        [EnableQuery]
+        [EnableQuery(PageSize = 1)]
+        [CustomODataRouting]
         [HttpGet("accounts/{accountId}/access-tokens")]
         [SwaggerOperation(OperationId = AuthorizationServiceConstants.GetAllAccessTokenOperationId, Summary = AuthorizationServiceConstants.GetAllAccessTokensSwaggerSummary)]
-        public async Task<ActionResult> GetAllAccessTokenAsync([FromRoute] string accountId)
+        public async Task<ActionResult> GetAllAccessTokenV2Async([FromRoute] string accountId)
         {
     //        _logger.Information($"GetAllAccessTokenAsync Request entry for accountId: {accountId}.");
-            return Ok(accesstokens);
+            return Ok(accesstokens.AsQueryable());
         }
 
         /// <summary>
         /// Delete AccessToken for given accountId
         /// </summary>
-        [EnableQuery]
         [HttpDelete("accounts/{accountId}/access-tokens/{accessTokenId}")]
         [SwaggerOperation(OperationId = AuthorizationServiceConstants.DeleteAccessTokenOperationId, Summary = AuthorizationServiceConstants.DeleteAccessTokenSwaggerSummary)]
         public async Task<ActionResult> DeleteAccessTokenAsync([FromRoute] string accountId, [FromRoute] string accessTokenId)

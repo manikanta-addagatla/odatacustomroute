@@ -78,7 +78,7 @@ namespace Microsoft.Playwright.Services.Authorization
 
             app.UseCertificateForwarding();
             app.UseODataRouteDebug();
-            
+            app.UseMiddleware<ODataResponseModifierMiddleware>();
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();

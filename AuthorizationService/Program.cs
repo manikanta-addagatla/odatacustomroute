@@ -2,10 +2,8 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 //-----------------------------------------------------------------------------
 
+using AuthorizationService.Logging;
 using Serilog;
-using System;
-using System.IO;
-using System.Threading;
 
 namespace Microsoft.Playwright.Services.Authorization
 {
@@ -16,9 +14,11 @@ namespace Microsoft.Playwright.Services.Authorization
             // The initial "bootstrap" logger is able to log errors during start-up. It's completely replaced by the
             // logger configured in `UseSerilog()` below, once configuration and dependency-injection have both been
             // set up successfully.
-
-            Console.WriteLine("Starting up Authorization Service");
-            CreateHostBuilder(args).Build().Run();
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.Console()
+                .CreateBootstrapLogger();
+            Log.Information("Starting up Authorization Service");
+            CreateHostBuilder(args).UsePlaywrightLogger().Build().Run();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
