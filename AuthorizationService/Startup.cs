@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.OData.Formatter.Serialization;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.OData;
 using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
 using Microsoft.OpenApi.Models;
@@ -41,7 +42,7 @@ namespace Microsoft.Playwright.Services.Authorization
             services.AddControllers()
                 .AddNewtonsoftJson(options => options.SerializerSettings.Converters.Add(new StringEnumConverter()))
                // .AddOData(options => options.EnableQueryFeatures().AddRouteComponents("accounts/{accountId}/access-tokens", EdmModelProvider.GetEdmModel()));
-            .AddOData(options => {options.EnableQueryFeatures().AddRouteComponents("accounts/{accountId}", EdmModelProvider.GetEdmModel());});
+            .AddOData(options => options.EnableQueryFeatures().AddRouteComponents("accounts/{accountId}", EdmModelProvider.GetEdmModel()));
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc(AuthorizationServiceConstants.APIVersion1_0,
@@ -58,7 +59,9 @@ namespace Microsoft.Playwright.Services.Authorization
             });
             services.AddSwaggerGenNewtonsoftSupport();
             services.AddHttpContextAccessor();
-            
+            var oDataSimplifiedOptions = new ODataSimplifiedOptions();
+            oDataSimplifiedOptions.SetOmitODataPrefix(true);
+            services.AddSingleton<ODataSimplifiedOptions>(oDataSimplifiedOptions);
             services.AddSingleton<ODataSerializerProvider, CustomODataSerializerProvider>();
             services.AddSingleton<ODataDeserializerProvider, CustomODataDeserializerProvider>();
         }
