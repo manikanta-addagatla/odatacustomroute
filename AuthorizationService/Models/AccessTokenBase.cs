@@ -2,12 +2,15 @@
 // Copyright (c) Microsoft Corporation.  All rights reserved.
 //-----------------------------------------------------------------------------
 
+using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
 namespace Microsoft.Playwright.Services.Authorization.Models
 {
+    //[DataContract]
     public class AccessTokenBase
     {
+        //[DataMember(Name = "id")]
         [JsonProperty(PropertyName = "id")]
         public string Id { get; set; }
 

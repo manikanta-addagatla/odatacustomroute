@@ -41,8 +41,9 @@ namespace Microsoft.Playwright.Services.Authorization
             services.AddRouting(options => options.LowercaseUrls = true);
             services.AddControllers()
                 .AddNewtonsoftJson(options => options.SerializerSettings.Converters.Add(new StringEnumConverter()))
-               // .AddOData(options => options.EnableQueryFeatures().AddRouteComponents("accounts/{accountId}/access-tokens", EdmModelProvider.GetEdmModel()));
-            .AddOData(options => options.EnableQueryFeatures().AddRouteComponents("accounts/{accountId}", EdmModelProvider.GetEdmModel()));
+                //.AddOData(options => options.EnableQueryFeatures().AddRouteComponents("accounts/{accountId}", EdmModelProvider.GetEdmModel()))
+                //.AddNewtonsoftJson();
+                .AddOData(options => options.EnableQueryFeatures().AddRouteComponents("accounts/{accountId}", EdmModelProvider.GetEdmModel(), builder => builder.AddSingleton<IODataSerializerProvider, CustomODataSerializerProvider>().AddSingleton<IODataDeserializerProvider, CustomODataDeserializerProvider>()));
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc(AuthorizationServiceConstants.APIVersion1_0,
@@ -62,8 +63,8 @@ namespace Microsoft.Playwright.Services.Authorization
             var oDataSimplifiedOptions = new ODataSimplifiedOptions();
             oDataSimplifiedOptions.SetOmitODataPrefix(true);
             services.AddSingleton<ODataSimplifiedOptions>(oDataSimplifiedOptions);
-            services.AddSingleton<ODataSerializerProvider, CustomODataSerializerProvider>();
-            services.AddSingleton<ODataDeserializerProvider, CustomODataDeserializerProvider>();
+            //services.AddSingleton<ODataSerializerProvider, CustomODataSerializerProvider>();
+            //services.AddSingleton<ODataDeserializerProvider, CustomODataDeserializerProvider>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

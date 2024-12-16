@@ -1,6 +1,5 @@
-using System;
 using Microsoft.AspNetCore.OData.Formatter.Deserialization;
-using Microsoft.OData;
+using Microsoft.AspNetCore.OData.Formatter.Wrapper;
 using Microsoft.OData.Edm;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -14,26 +13,26 @@ namespace Microsoft.Playwright.Services.Authorization.Common
 
         public CustomODataDeserializerProvider(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            _customODataDeserializer = new CustomODataDeserializer();
+            _customODataDeserializer = new CustomODataDeserializer(this);
         }
 
-        /*public override ODataEdmTypeSerializer GetEdmTypeSerializer(IEdmTypeReference edmType)
+        public override IODataEdmTypeDeserializer GetEdmTypeDeserializer(IEdmTypeReference edmType, bool isDelta = false)
         {
             Console.WriteLine($"in GetEdmTypeDeserializer type {edmType.IsEntity()}");
-            if (edmType.IsEntity())
+            if (edmType.IsEntity() || edmType.IsComplex())
             {
-                return _customODataSerializer;
+                return _customODataDeserializer;
             }
 
-            return base.GetEdmTypeSerializer(edmType);
+            return base.GetEdmTypeDeserializer(edmType, isDelta);
         }
 
-        public override ODataSerializer GetODataPayloadSerializer(Type type, HttpRequestMessage request){
+        /*public override ODataSerializer GetODataPayloadSerializer(Type type, HttpRequestMessage request){
             Console.WriteLine($"in GetODataPayloadSerializer type {type}");
             return base.GetODataPayloadSerializer(type, request);
         }*/
 
-        public override IODataDeserializer GetODataDeserializer(Type type, HttpRequest request)
+        /*public override IODataDeserializer GetODataDeserializer(Type type, HttpRequest request)
         {
             Console.WriteLine($"in GetODataDeserializer type {type}");
             return base.GetODataDeserializer(type, request);
@@ -43,15 +42,15 @@ namespace Microsoft.Playwright.Services.Authorization.Common
         {
             Console.WriteLine($"in GetEdmTypeDeserializer type {edmType}");
             return base.GetEdmTypeDeserializer(edmType, isDelta);
-        }
+        }*/
     }
 
 
     // A custom entity serializer that adds the score annotation to document entries.
-    public class CustomODataDeserializer : ODataDeserializer
+    public class CustomODataDeserializer : ODataResourceDeserializer
     {
         private readonly JsonSerializerSettings _jsonSerializerSettings;
-        public CustomODataDeserializer() : base(ODataPayloadKind.Resource)
+        public CustomODataDeserializer(IODataDeserializerProvider serializerProvider) : base(serializerProvider)
         {
             _jsonSerializerSettings = new JsonSerializerSettings
             {
@@ -59,20 +58,18 @@ namespace Microsoft.Playwright.Services.Authorization.Common
                 Formatting = Formatting.None
             };
         }
-        /*public override ODataResource CreateResource(SelectExpandNode selectExpandNode, ResourceContext resourceContext)
+        public override object ReadResource(ODataResourceWrapper resourceWrapper, IEdmStructuredTypeReference structuredType, ODataDeserializerContext readContext)
         {
-            ODataResource resource = base.CreateResource(selectExpandNode, resourceContext);
-            var json = JsonConvert.SerializeObject(resource, _jsonSerializerSettings);
-            Console.WriteLine("im here");
-            var newResource = JsonConvert.DeserializeObject<ODataResource>(json, _jsonSerializerSettings);
+            Console.WriteLine($"in ReadResource type {resourceWrapper}");
+            object resource = base.ReadResource(resourceWrapper, structuredType, readContext);
 
-            return newResource;
-        }*/
+            return resource;
+        }
 
-        public override Task<object> ReadAsync(ODataMessageReader messageReader, Type type, ODataDeserializerContext readContext)
+        /*public override Task<object> ReadAsync(ODataMessageReader messageReader, Type type, ODataDeserializerContext readContext)
         {
             Console.WriteLine($"in ReadAsync type {type}");
             throw new NotImplementedException();
-        }
+        }*/
     }
 }
