@@ -3,7 +3,6 @@
 //-----------------------------------------------------------------------------
 
 using Newtonsoft.Json;
-using System;
 
 namespace Microsoft.Playwright.Services.Authorization.Models
 {

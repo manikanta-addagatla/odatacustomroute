@@ -6,6 +6,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.OData;
+using Microsoft.AspNetCore.OData.Formatter.Deserialization;
+using Microsoft.AspNetCore.OData.Formatter.Serialization;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -15,6 +17,7 @@ using Microsoft.OpenApi.Models;
 using Microsoft.Playwright.Services.Authorization.Common;
 using Microsoft.Playwright.Services.Authorization.Models;
 using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
 using Serilog;
 using System.Diagnostics;
 using System.Reflection;
@@ -38,7 +41,7 @@ namespace Microsoft.Playwright.Services.Authorization
             services.AddControllers()
                 .AddNewtonsoftJson(options => options.SerializerSettings.Converters.Add(new StringEnumConverter()))
                // .AddOData(options => options.EnableQueryFeatures().AddRouteComponents("accounts/{accountId}/access-tokens", EdmModelProvider.GetEdmModel()));
-                .AddOData(options => options.EnableQueryFeatures().AddRouteComponents("accounts/{accountId}", EdmModelProvider.GetEdmModel()));
+            .AddOData(options => {options.EnableQueryFeatures().AddRouteComponents("accounts/{accountId}", EdmModelProvider.GetEdmModel());});
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc(AuthorizationServiceConstants.APIVersion1_0,
@@ -55,6 +58,9 @@ namespace Microsoft.Playwright.Services.Authorization
             });
             services.AddSwaggerGenNewtonsoftSupport();
             services.AddHttpContextAccessor();
+            
+            services.AddSingleton<ODataSerializerProvider, CustomODataSerializerProvider>();
+            services.AddSingleton<ODataDeserializerProvider, CustomODataDeserializerProvider>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -78,8 +84,8 @@ namespace Microsoft.Playwright.Services.Authorization
 
             app.UseCertificateForwarding();
             app.UseODataRouteDebug();
-            app.UseMiddleware<ODataResponseModifierMiddleware>();
             app.UseRouting();
+            app.UseMiddleware<ODataResponseModifierMiddleware>();
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseHttpsRedirection();
