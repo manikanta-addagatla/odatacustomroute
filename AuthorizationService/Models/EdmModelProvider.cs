@@ -18,6 +18,7 @@ namespace Microsoft.Playwright.Services.Authorization.Models
             if (_EdmModel == null)
             {
                 var builder = new ODataConventionModelBuilder();
+                builder.EnableLowerCamelCase();
                 builder.EntitySet<AccessTokenResponse>("AccessToken");
                 _EdmModel = builder.GetEdmModel();
             }

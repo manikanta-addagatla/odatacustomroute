@@ -24,6 +24,8 @@ namespace Microsoft.Playwright.Services.Authorization.Controllers
     /// </summary>
     //[ODataAttributeRouting]
     [Route("/")]
+    [ApiVersion(AuthorizationServiceConstants.APIVersion1_0)]
+    [ApiVersion(AuthorizationServiceConstants.APIVersion2_0)]
     public class AccessTokenController : ControllerBase
     {
         private readonly ILogger _logger;
@@ -104,6 +106,7 @@ namespace Microsoft.Playwright.Services.Authorization.Controllers
         /// Get AccessToken for given acccessKeyId
         /// </summary>
         [HttpGet("accounts/{accountId}/access-tokens/{accessTokenId}")]
+        [ODataIgnored]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AccessTokenResponse))]
         [SwaggerOperation(OperationId = AuthorizationServiceConstants.GetAccessTokenOperationId, Summary = AuthorizationServiceConstants.GetAccessTokenSwaggerSummary)]
         public async Task<ActionResult> GetAccessTokenAsync([FromRoute] string accountId, [FromRoute] string accessTokenId)
@@ -115,16 +118,28 @@ namespace Microsoft.Playwright.Services.Authorization.Controllers
             });
         }
 
+        [HttpGet("accounts/{accountId}/access-tokens")]
+        [MapToApiVersion(AuthorizationServiceConstants.APIVersion1_0)]
+        // User AAD Token
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<AccessTokenResponse>))]
+        [SwaggerOperation(OperationId = "GetAllAccessTokenV1")]
+        public async Task<ActionResult> GetAllAccessTokenAsync([FromRoute] string accountId)
+        {
+            _logger.Information($"GetAllAccessTokenAsync Request entry for accountId: {accountId}.");
+            return Ok(accesstokens);
+        }
+
         /// <summary>
         /// Get all AccessToken for given accountId
         /// </summary>
         [EnableQuery(PageSize = 2)]
         [CustomODataRouting]
+        [MapToApiVersion(AuthorizationServiceConstants.APIVersion2_0)]
         [HttpGet("accounts/{accountId}/access-tokens")]
-        [SwaggerOperation(OperationId = AuthorizationServiceConstants.GetAllAccessTokenOperationId, Summary = AuthorizationServiceConstants.GetAllAccessTokensSwaggerSummary)]
+        [SwaggerOperation(OperationId = "GetAllAccessTokenV2")]
         public async Task<ActionResult> GetAllAccessTokenV2Async([FromRoute] string accountId)
         {
-    //        _logger.Information($"GetAllAccessTokenAsync Request entry for accountId: {accountId}.");
+    //      _logger.Information($"GetAllAccessTokenAsync Request entry for accountId: {accountId}.");
             return Ok(accesstokens.AsQueryable());
         }
 

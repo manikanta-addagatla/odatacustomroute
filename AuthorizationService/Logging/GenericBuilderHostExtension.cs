@@ -31,13 +31,13 @@ namespace AuthorizationService.Logging
                     //serilogConfig.WriteTo.Console(outputTemplate: "[{Timestamp:HH:mm:ss:ms} {CorrelationId} {Level:u3}] {Message:lj}{NewLine}{Exception}");
 
                     serilogConfig = serilogConfig.WriteTo.Console(new CompactJsonFormatter());
-                    serilogConfig = serilogConfig.WriteTo.AzureDataExplorerSink(new Serilog.Sinks.AzureDataExplorer.AzureDataExplorerSinkOptions
+                    /*serilogConfig = serilogConfig.WriteTo.AzureDataExplorerSink(new Serilog.Sinks.AzureDataExplorer.AzureDataExplorerSinkOptions
                     {
                         IngestionEndpointUri = "https://ingest-serilogsinktest.eastus.kusto.windows.net",
                         DatabaseName = "serilogdb",
                         TableName = "serilogtable",
                         FlushImmediately = true,
-                    });
+                    });*/
 
                     serilogConfig.Enrich.FromGlobalLogContext();
                     GlobalLogContext.PushProperty(Constants.Environment, "Prod");
